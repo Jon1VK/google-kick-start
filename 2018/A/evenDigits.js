@@ -2,50 +2,43 @@
 var input = ``;
 
 function getTestCaseArgs() {
-  return ['0' + stdin.nextWord()];
+  return [stdin.nextWord()];
 }
 
 function solveTestCase(N) {
   // Find the index of first odd digit
   var i = 0;
-
   while (N[i] % 2 === 0) {
     i++;
-
     // If no odds return zero
     if (i === N.length) {
       return 0;
     }
   }
 
+  // If first odd digit is nine, there is always fewer minus presses
+  if (N[i] === '9') {
+    return calculateMinusPresses(N, i);
+  }
+
   const plusPresses = calculatePlusPresses(N, i);
   const minusPresses = calculateMinusPresses(N, i);
 
-  return Math.min(plusPresses, minusPresses);
+  return plusPresses < minusPresses ? plusPresses : minusPresses;
 }
 
 // Calculates plus presses needed to have no odd digits given number N as string
-// and first odd digit index i
+// and index i of first odd digit
 function calculatePlusPresses(N, i) {
-  // Calculate presses needed to add one to first odd digit
-  var presses = 10 ** (N.length - 1 - i) - N.slice(i + 1);
-
-  // If the first odd digit was not 9, return the result
-  if (N[i] !== '9') {
-    return presses;
-  }
-
-  // Otherwise update the number digits
-  N = (N.slice(0, i - 1) + (+N[i - 1] + 1).toString()).padEnd(N.length, '0');
-
-  // And calculate recursively how many more presses are needed
-  return presses + calculatePlusPresses(N, i - 1);
+  var noOddsN = (N.slice(0, i) + (+N[i] + 1)).padEnd(N.length, '0');
+  return BigInt(noOddsN) - BigInt(N);
 }
 
 // Calculate minus presses needed to have no odd digits given number N as string
-// and first odd digit index i
+// and index i of first odd digit
 function calculateMinusPresses(N, i) {
-  return +N.slice(i + 1) + +''.padEnd(N.length - 1 - i, 1) + 1;
+  var noOddsN = (N.slice(0, i) + (N[i] - 1)).padEnd(N.length, '8');
+  return BigInt(N) - BigInt(noOddsN);
 }
 
 (function initIO() {
